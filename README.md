@@ -6,7 +6,7 @@ Ferramenta web gratuita da **Igor Gomes ETI** para tratamento básico de ruído 
 O processamento acontece localmente no navegador. O arquivo selecionado não é enviado para um servidor pela aplicação.
 
 ## Recursos da versão inicial
-- MP3, WAV, M4A, AAC e OGG, conforme suporte de decodificação do navegador
+- MP3, WAV, M4A, AAC e OGG, conforme suporte de decodificação do navegador\n- Vídeos MP4, WebM e MOV: extrai, trata e reinsere a faixa de áudio no navegador
 - Presets Leve, Normal, Forte e Voz / Unboxing
 - Redução de ruído por gate adaptativo
 - Filtro de graves
