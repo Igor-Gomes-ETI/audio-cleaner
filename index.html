@@ -43,6 +43,18 @@
 </div>
 </section>
 <section class="how"><h2>Como funciona</h2><div class="steps"><article><b>01</b><h3>Escolha</h3><p>Selecione um áudio ou vídeo no seu computador.</p></article><article><b>02</b><h3>Limpe</h3><p>O navegador trata a faixa de áudio localmente, inclusive dentro de vídeos.</p></article><article><b>03</b><h3>Compare</h3><p>Compare o resultado e baixe MP3, WAV ou o vídeo com áudio tratado.</p></article></div></section>
-<footer>Igor Gomes ETI • Audio Cleaner <span>•</span> Sem envio de arquivos para servidor <span>•</span> <b>Build 2026.10.06.17</b> <span id="jsStatus">• JS aguardando…</span></footer>
-</main><script src="app-build-17.js"></script>
+<footer>Igor Gomes ETI • Audio Cleaner <span>•</span> Sem envio de arquivos para servidor <span>•</span> <b>Build 2026.10.06.17</b> <span id="jsStatus">• JS aguardando…</span> <button id="forceUpdate" type="button" style="margin-left:10px;background:#101f31;color:#dfe8f4;border:1px solid #29405a;border-radius:8px;padding:7px 10px;cursor:pointer">🔄 Buscar versão mais recente</button></footer>
+</main>
+<script>
+document.getElementById("forceUpdate")?.addEventListener("click",async()=>{
+  const b=document.getElementById("forceUpdate");
+  b.disabled=true;b.textContent="🔄 Atualizando…";
+  try{
+    if("serviceWorker" in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}
+    if("caches" in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}
+  }catch(e){}
+  const u=new URL(location.href);u.searchParams.set("_refresh",Date.now());location.replace(u.href);
+});
+</script>
+<script src="app-build-17.js?v=202610061552"></script>
 </body></html>
