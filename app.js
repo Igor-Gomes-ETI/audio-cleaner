@@ -1,4 +1,4 @@
-console.info("Audio Cleaner build 2026.10.06.7");
+console.info("Audio Cleaner build 2026.10.06.8");
 document.addEventListener("DOMContentLoaded",()=>{const s=document.querySelector("#jsStatus");if(s){s.textContent="• JS ativo ✓";s.style.color="#19d3c5"}});
 let selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
 const $=s=>document.querySelector(s),file=$("#file"),drop=$("#drop"),work=$("#work");
@@ -55,8 +55,8 @@ let ffmpegInstance=null;
 async function getFFmpeg(){
  if(ffmpegInstance)return ffmpegInstance;
  if(typeof FFmpeg==="undefined")throw Error("Biblioteca FFmpeg não carregou");
- setProgress(8,"Baixando motor FFmpeg…");
- const coreRemote="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js";
+ setProgress(8,"Baixando FFmpeg single-thread…");
+ const coreRemote="https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js";
  let corePath=coreRemote;
  try{
    const r=await fetch(coreRemote,{cache:"force-cache"});
@@ -65,7 +65,7 @@ async function getFFmpeg(){
    corePath=URL.createObjectURL(new Blob([js],{type:"text/javascript"}));
  }catch(e){throw Error("Não foi possível baixar o núcleo do FFmpeg: "+e.message)}
  ffmpegInstance=FFmpeg.createFFmpeg({log:true,corePath});
- setProgress(9,"Inicializando FFmpeg WebAssembly…");
+ setProgress(9,"Inicializando FFmpeg compatível…");
  try{await ffmpegInstance.load()}catch(e){ffmpegInstance=null;throw Error("FFmpeg não inicializou: "+((e&&e.message)||e))}
  return ffmpegInstance
 }
