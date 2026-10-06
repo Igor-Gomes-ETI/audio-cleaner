@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1220">
 <title>Audio Cleaner | Igor Gomes ETI</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">\n<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 </head>
 <body>
 <main class="shell">
@@ -25,11 +25,11 @@
 <div class="options"><label><input id="normalize" type="checkbox" checked> Normalizar volume</label><label><input id="highpass" type="checkbox" checked> Cortar graves indesejados</label></div>
 <button id="process" class="primary">✨ PROCESSAR ÁUDIO</button>
 <div id="progress" class="progress hidden"><div id="bar"></div><span id="status">Preparando…</span></div>
-<a id="download" class="download hidden">⬇ BAIXAR RESULTADO</a>
+<a id="download" class="download hidden">⬇ BAIXAR MP3</a>\n<a id="downloadWav" class="download hidden" style="background:#101f31;color:#dfe8f4;border:1px solid #29405a">⬇ BAIXAR WAV</a>
 <p id="error" class="error hidden"></p>
 </div>
 </section>
-<section class="how"><h2>Como funciona</h2><div class="steps"><article><b>01</b><h3>Escolha</h3><p>Selecione o áudio no seu computador.</p></article><article><b>02</b><h3>Limpe</h3><p>O navegador reduz ruído e trata a voz localmente.</p></article><article><b>03</b><h3>Compare</h3><p>Ouça antes e depois e baixe o WAV tratado.</p></article></div></section>
+<section class="how"><h2>Como funciona</h2><div class="steps"><article><b>01</b><h3>Escolha</h3><p>Selecione o áudio no seu computador.</p></article><article><b>02</b><h3>Limpe</h3><p>O navegador reduz ruído e trata a voz localmente.</p></article><article><b>03</b><h3>Compare</h3><p>Ouça antes e depois e baixe o resultado em MP3 ou WAV.</p></article></div></section>
 <footer>Igor Gomes ETI • Audio Cleaner <span>•</span> Sem envio de arquivos para servidor</footer>
 </main><script src="app.js"></script>
 </body></html>
