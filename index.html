@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Audio Cleaner | Igor Gomes ETI</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="shell">
+<header><div class="brand"><span class="logo">IG</span><div><b>Igor Gomes ETI</b><small>Ferramentas locais</small></div></div><span class="privacy">🔒 Processamento no seu navegador</span></header>
+<section class="hero"><p class="eyebrow">AUDIO CLEANER</p><h1>Limpe o ruído.<br><span>Preserve a voz.</span></h1><p>Tratamento gratuito de áudio, sem upload para servidor. O arquivo fica no seu dispositivo.</p></section>
+<section class="panel">
+<label id="drop" class="drop"><input id="file" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg"><span class="mic">🎙️</span><b>Arraste seu áudio aqui</b><small>ou clique para selecionar • MP3, WAV, M4A, AAC, OGG</small></label>
+<div id="work" class="work hidden">
+<div class="fileline"><div><small>ARQUIVO</small><strong id="filename"></strong></div><button id="change">Trocar arquivo</button></div>
+<div class="players"><div><label>🎧 Original</label><audio id="original" controls></audio></div><div id="resultBox" class="disabled"><label>✨ Tratado</label><audio id="result" controls></audio></div></div>
+<h2>Intensidade da limpeza</h2>
+<div class="presets">
+<button class="preset" data-preset="light"><b>Leve</b><small>Preserva mais detalhes</small></button>
+<button class="preset active" data-preset="normal"><b>Normal</b><small>Uso geral</small></button>
+<button class="preset" data-preset="strong"><b>Forte</b><small>Ruído intenso</small></button>
+<button class="preset" data-preset="voice"><b>🎤 Voz / Unboxing</b><small>Prioriza fala</small></button>
+</div>
+<div class="options"><label><input id="normalize" type="checkbox" checked> Normalizar volume</label><label><input id="highpass" type="checkbox" checked> Cortar graves indesejados</label></div>
+<button id="process" class="primary">✨ PROCESSAR ÁUDIO</button>
+<div id="progress" class="progress hidden"><div id="bar"></div><span id="status">Preparando…</span></div>
+<a id="download" class="download hidden">⬇ BAIXAR RESULTADO</a>
+<p id="error" class="error hidden"></p>
+</div>
+</section>
+<section class="how"><h2>Como funciona</h2><div class="steps"><article><b>01</b><h3>Escolha</h3><p>Selecione o áudio no seu computador.</p></article><article><b>02</b><h3>Limpe</h3><p>O navegador reduz ruído e trata a voz localmente.</p></article><article><b>03</b><h3>Compare</h3><p>Ouça antes e depois e baixe o WAV tratado.</p></article></div></section>
+<footer>Igor Gomes ETI • Audio Cleaner <span>•</span> Sem envio de arquivos para servidor</footer>
+</main><script src="app.js"></script>
+</body></html>
