@@ -1,4 +1,4 @@
-console.info("Audio Cleaner build 2026.10.06.9");
+console.info("Audio Cleaner build 2026.10.06.10");
 document.addEventListener("DOMContentLoaded",()=>{const s=document.querySelector("#jsStatus");if(s){s.textContent="• JS ativo ✓";s.style.color="#19d3c5"}});
 let selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
 const $=s=>document.querySelector(s),file=$("#file"),drop=$("#drop"),work=$("#work");
@@ -54,28 +54,56 @@ async function encodeMp3(o,progress){if(typeof lamejs==="undefined")throw Error(
 let ffmpegInstance=null;
 async function getFFmpeg(){
  if(ffmpegInstance)return ffmpegInstance;
- if(typeof FFmpeg==="undefined")throw Error("Biblioteca FFmpeg não carregou");
- const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/";
- setProgress(8,"Baixando FFmpeg single-thread…");
+ setProgress(8,"Carregando FFmpeg 0.12 single-thread…");
+ let FFmpegClass,toBlobURL;
+ try{
+   const main=await import("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js");
+   const util=await import("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js");
+   FFmpegClass=main.FFmpeg;
+   toBlobURL=util.toBlobURL;
+ }catch(e){throw Error("Bibliotecas FFmpeg 0.12 não carregaram: "+e.message)}
+ const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
  let coreURL,wasmURL;
  try{
-   const [jr,wr]=await Promise.all([
-     fetch(base+"ffmpeg-core.js",{cache:"force-cache"}),
-     fetch(base+"ffmpeg-core.wasm",{cache:"force-cache"})
-   ]);
-   if(!jr.ok)throw Error("core JS HTTP "+jr.status);
-   if(!wr.ok)throw Error("core WASM HTTP "+wr.status);
-   const js=await jr.blob(),wasm=await wr.blob();
-   coreURL=URL.createObjectURL(new Blob([js],{type:"text/javascript"}));
-   wasmURL=URL.createObjectURL(new Blob([wasm],{type:"application/wasm"}));
- }catch(e){throw Error("Não foi possível baixar JS/WASM do FFmpeg: "+e.message)}
- ffmpegInstance=FFmpeg.createFFmpeg({log:true,corePath:coreURL,wasmPath:wasmURL});
- setProgress(9,"Inicializando FFmpeg single-thread…");
- try{await ffmpegInstance.load()}catch(e){ffmpegInstance=null;throw Error("FFmpeg não inicializou: "+((e&&e.message)||e))}
+   coreURL=await toBlobURL(base+"/ffmpeg-core.js","text/javascript");
+   wasmURL=await toBlobURL(base+"/ffmpeg-core.wasm","application/wasm");
+ }catch(e){throw Error("Core FFmpeg 0.12 não carregou: "+e.message)}
+ const ff=new FFmpegClass();
+ ff.on("log",({message})=>console.log("[ffmpeg]",message));
+ setProgress(9,"Inicializando FFmpeg 0.12…");
+ try{await ff.load({coreURL,wasmURL})}catch(e){throw Error("FFmpeg 0.12 não inicializou: "+((e&&e.message)||e))}
+ ffmpegInstance=ff;
  return ffmpegInstance
 }
-async function extractAudioFromVideo(f){setProgress(6,"Carregando FFmpeg para extrair o áudio…");const ff=await getFFmpeg(),ext=(f.name.split(".").pop()||"mp4").toLowerCase(),input="entrada."+ext;setProgress(10,"Copiando vídeo para a memória de trabalho…");const raw=await f.arrayBuffer();ff.FS("writeFile",input,new Uint8Array(raw));setProgress(13,"Extraindo somente a faixa de áudio…");try{await ff.run("-i",input,"-vn","-ac","2","-acodec","pcm_s16le","-ar","48000","audio.wav");const d=ff.FS("readFile","audio.wav");const out=d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength);return out}finally{["entrada."+ext,"audio.wav"].forEach(x=>{try{ff.FS("unlink",x)}catch(e){}})}}
-async function muxCleanAudio(video,wavBlob){setProgress(94,"Liberando memória antes de remontar o vídeo…");await tick();const ff=await getFFmpeg(),ext=(video.name.split(".").pop()||"mp4").toLowerCase(),input="video."+ext;ff.FS("writeFile",input,new Uint8Array(await video.arrayBuffer()));ff.FS("writeFile","clean.wav",new Uint8Array(await wavBlob.arrayBuffer()));try{await ff.run("-i",input,"-i","clean.wav","-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k","-shortest","saida.mp4");const d=ff.FS("readFile","saida.mp4");return new Blob([d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength)],{type:"video/mp4"})}finally{["video."+ext,"clean.wav","saida.mp4"].forEach(x=>{try{ff.FS("unlink",x)}catch(e){}})}}
+async function extractAudioFromVideo(f){
+ setProgress(6,"Preparando extração de áudio…");
+ const ff=await getFFmpeg(),ext=(f.name.split(".").pop()||"mp4").toLowerCase(),input="entrada."+ext;
+ setProgress(10,"Copiando vídeo para a memória de trabalho…");
+ let raw=new Uint8Array(await f.arrayBuffer());
+ await ff.writeFile(input,raw); raw=null;
+ setProgress(13,"Extraindo somente a faixa de áudio…");
+ try{
+   await ff.exec(["-i",input,"-vn","-ac","2","-acodec","pcm_s16le","-ar","48000","audio.wav"]);
+   const d=await ff.readFile("audio.wav");
+   return d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength)
+ }finally{
+   try{await ff.deleteFile(input)}catch(e){}
+   try{await ff.deleteFile("audio.wav")}catch(e){}
+ }
+}
+async function muxCleanAudio(video,wavBlob){
+ setProgress(94,"Liberando memória antes de remontar o vídeo…");await tick();
+ const ff=await getFFmpeg(),ext=(video.name.split(".").pop()||"mp4").toLowerCase(),input="video."+ext;
+ await ff.writeFile(input,new Uint8Array(await video.arrayBuffer()));
+ await ff.writeFile("clean.wav",new Uint8Array(await wavBlob.arrayBuffer()));
+ try{
+   await ff.exec(["-i",input,"-i","clean.wav","-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k","-shortest","saida.mp4"]);
+   const d=await ff.readFile("saida.mp4");
+   return new Blob([d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength)],{type:"video/mp4"})
+ }finally{
+   for(const x of [input,"clean.wav","saida.mp4"]){try{await ff.deleteFile(x)}catch(e){}}
+ }
+}
 let rnnoiseModule=null;
 async function loadRNNoise(){if(rnnoiseModule)return rnnoiseModule;const mod=await import("https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2025.1.5/dist/rnnoise.js");rnnoiseModule=await mod.Rnnoise.load();return rnnoiseModule}
 async function resampleTo48k(audio){if(audio.sampleRate===48000)return audio;const offline=new OfflineAudioContext(audio.numberOfChannels,Math.ceil(audio.duration*48000),48000),src=offline.createBufferSource();src.buffer=audio;src.connect(offline.destination);src.start();return await offline.startRendering()}
