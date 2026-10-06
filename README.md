@@ -19,6 +19,7 @@ O processamento acontece localmente no navegador. Os arquivos selecionados não 
 - Áudio: MP3, WAV, M4A, AAC e OGG, conforme suporte do navegador.
 - Vídeo: MP4, WebM e MOV. A aplicação extrai o áudio, trata e tenta reinseri-lo no vídeo.
 - Presets: Leve, Normal, Forte e Voz / Unboxing.\n- **Voz / Unboxing com RNNoise neural via WebAssembly**, com fallback automático para o tratamento clássico quando o módulo neural não estiver disponível.
+- Fluxo de refinamento após ouvir o resultado: **Voz Natural**, **Voz Forte** e **Ruído Extremo**, sem precisar selecionar o arquivo novamente.
 - Gate adaptativo para redução de ruído.
 - Filtro de graves e normalização.
 - Comparação entre original e tratado.
