@@ -1,4 +1,4 @@
-let selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
+console.info("Audio Cleaner build 2026.10.06.2");\nlet selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
 const $=s=>document.querySelector(s),file=$("#file"),drop=$("#drop"),work=$("#work");
 ["dragenter","dragover"].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add("over")}));
 ["dragleave","drop"].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove("over")}));
