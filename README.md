@@ -18,7 +18,7 @@ O processamento acontece localmente no navegador. Os arquivos selecionados não 
 
 - Áudio: MP3, WAV, M4A, AAC e OGG, conforme suporte do navegador.
 - Vídeo: MP4, WebM e MOV. A aplicação extrai o áudio, trata e tenta reinseri-lo no vídeo.
-- Presets: Leve, Normal, Forte e Voz / Unboxing.
+- Presets: Leve, Normal, Forte e Voz / Unboxing.\n- **Voz / Unboxing com RNNoise neural via WebAssembly**, com fallback automático para o tratamento clássico quando o módulo neural não estiver disponível.
 - Gate adaptativo para redução de ruído.
 - Filtro de graves e normalização.
 - Comparação entre original e tratado.
@@ -45,7 +45,7 @@ A forma mais simples é clicar no botão **ABRIR AUDIO CLEANER** no início dest
 
 ## 🚧 Próximas melhorias
 
-- redução de ruído neural com RNNoise/WebAssembly;
+- refinamento e testes do RNNoise/WebAssembly em diferentes tipos de gravação;
 - PWA para funcionamento offline;
 - visualização da forma de onda;
 - otimizações para vídeos maiores.
