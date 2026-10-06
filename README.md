@@ -12,7 +12,7 @@ O processamento acontece localmente no navegador. O arquivo selecionado não é 
 - Filtro de graves
 - Normalização
 - Comparação Original × Tratado
-- Exportação WAV
+- Exportação MP3 em 192 kbps e WAV
 - Interface responsiva
 
 ## Uso local
@@ -23,7 +23,7 @@ O projeto é estático e compatível com GitHub Pages. Para publicação públic
 
 ## Próximos passos
 - processamento de vídeo MP4
-- redução de ruído neural via WebAssembly
+- redução de ruído neural via WebAssembly / RNNoise
 - PWA/offline
 - visualização de forma de onda
 
