@@ -1,4 +1,4 @@
-console.info("Audio Cleaner build 2026.10.06.8");
+console.info("Audio Cleaner build 2026.10.06.9");
 document.addEventListener("DOMContentLoaded",()=>{const s=document.querySelector("#jsStatus");if(s){s.textContent="• JS ativo ✓";s.style.color="#19d3c5"}});
 let selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
 const $=s=>document.querySelector(s),file=$("#file"),drop=$("#drop"),work=$("#work");
@@ -55,17 +55,22 @@ let ffmpegInstance=null;
 async function getFFmpeg(){
  if(ffmpegInstance)return ffmpegInstance;
  if(typeof FFmpeg==="undefined")throw Error("Biblioteca FFmpeg não carregou");
+ const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/";
  setProgress(8,"Baixando FFmpeg single-thread…");
- const coreRemote="https://cdn.jsdelivr.net/npm/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js";
- let corePath=coreRemote;
+ let coreURL,wasmURL;
  try{
-   const r=await fetch(coreRemote,{cache:"force-cache"});
-   if(!r.ok)throw Error("HTTP "+r.status);
-   const js=await r.blob();
-   corePath=URL.createObjectURL(new Blob([js],{type:"text/javascript"}));
- }catch(e){throw Error("Não foi possível baixar o núcleo do FFmpeg: "+e.message)}
- ffmpegInstance=FFmpeg.createFFmpeg({log:true,corePath});
- setProgress(9,"Inicializando FFmpeg compatível…");
+   const [jr,wr]=await Promise.all([
+     fetch(base+"ffmpeg-core.js",{cache:"force-cache"}),
+     fetch(base+"ffmpeg-core.wasm",{cache:"force-cache"})
+   ]);
+   if(!jr.ok)throw Error("core JS HTTP "+jr.status);
+   if(!wr.ok)throw Error("core WASM HTTP "+wr.status);
+   const js=await jr.blob(),wasm=await wr.blob();
+   coreURL=URL.createObjectURL(new Blob([js],{type:"text/javascript"}));
+   wasmURL=URL.createObjectURL(new Blob([wasm],{type:"application/wasm"}));
+ }catch(e){throw Error("Não foi possível baixar JS/WASM do FFmpeg: "+e.message)}
+ ffmpegInstance=FFmpeg.createFFmpeg({log:true,corePath:coreURL,wasmPath:wasmURL});
+ setProgress(9,"Inicializando FFmpeg single-thread…");
  try{await ffmpegInstance.load()}catch(e){ffmpegInstance=null;throw Error("FFmpeg não inicializou: "+((e&&e.message)||e))}
  return ffmpegInstance
 }
