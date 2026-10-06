@@ -1,30 +1,53 @@
 # Audio Cleaner 🎙️
 
-Ferramenta web gratuita da **Igor Gomes ETI** para tratamento básico de ruído em áudio diretamente no navegador.
+Ferramenta web gratuita da **Igor Gomes ETI** para redução de ruído em arquivos de áudio e na faixa de áudio de vídeos, diretamente no navegador.
 
-## Privacidade
-O processamento acontece localmente no navegador. O arquivo selecionado não é enviado para um servidor pela aplicação.
+<p align="center">
+  <a href="https://igor-gomes-eti.github.io/audio-cleaner/">
+    <img src="https://img.shields.io/badge/ABRIR_AUDIO_CLEANER-19d3c5?style=for-the-badge&logo=github&logoColor=black" alt="Abrir Audio Cleaner">
+  </a>
+</p>
 
-## Recursos da versão inicial
-- MP3, WAV, M4A, AAC e OGG, conforme suporte de decodificação do navegador\n- Vídeos MP4, WebM e MOV: extrai, trata e reinsere a faixa de áudio no navegador
-- Presets Leve, Normal, Forte e Voz / Unboxing
-- Redução de ruído por gate adaptativo
-- Filtro de graves
-- Normalização
-- Comparação Original × Tratado
-- Exportação MP3 em 192 kbps e WAV
-- Interface responsiva
+> **Use a ferramenta:** https://igor-gomes-eti.github.io/audio-cleaner/
 
-## Uso local
-Abra `index.html` em um navegador moderno. Para melhor compatibilidade, sirva a pasta por HTTP local.
+## 🔒 Privacidade
 
-## GitHub Pages
-O projeto é estático e compatível com GitHub Pages. Para publicação pública via Pages, a disponibilidade depende das configurações e do plano da organização/repositório.
+O processamento acontece localmente no navegador. Os arquivos selecionados não são enviados para um servidor pela aplicação.
 
-## Próximos passos
-- processamento de vídeo MP4
-- redução de ruído neural via WebAssembly / RNNoise
-- PWA/offline
-- visualização de forma de onda
+## 🎧 Formatos e recursos
+
+- Áudio: MP3, WAV, M4A, AAC e OGG, conforme suporte do navegador.
+- Vídeo: MP4, WebM e MOV. A aplicação extrai o áudio, trata e tenta reinseri-lo no vídeo.
+- Presets: Leve, Normal, Forte e Voz / Unboxing.
+- Gate adaptativo para redução de ruído.
+- Filtro de graves e normalização.
+- Comparação entre original e tratado.
+- Exportação de áudio em MP3 192 kbps e WAV.
+- Download do vídeo com a faixa de áudio tratada.
+- Interface responsiva.
+
+## ⚙️ Limites e recomendações
+
+O Audio Cleaner não envia o arquivo para um servidor, portanto não existe um limite de upload imposto pelo site. O limite real depende principalmente da memória RAM, navegador, duração, resolução e codec do arquivo.
+
+| Tipo | Faixa recomendada | Tamanho recomendado |
+| --- | ---: | ---: |
+| Áudio | até 60 minutos | até 150 MB |
+| Vídeo | até 20 minutos | até 300 MB |
+
+Arquivos acima dessas faixas **podem funcionar**, especialmente em computadores com bastante RAM, mas o navegador poderá ficar lento, consumir muita memória ou encerrar a aba. Para vídeos longos ou em 4K, prefira dividir o arquivo antes do processamento.
+
+A própria página exibe um aviso de confirmação quando o arquivo ultrapassa o tamanho recomendado.
+
+## 🌐 Uso
+
+A forma mais simples é clicar no botão **ABRIR AUDIO CLEANER** no início deste README. Também é possível baixar o projeto e executá-lo localmente por HTTP.
+
+## 🚧 Próximas melhorias
+
+- redução de ruído neural com RNNoise/WebAssembly;
+- PWA para funcionamento offline;
+- visualização da forma de onda;
+- otimizações para vídeos maiores.
 
 © Igor Gomes ETI
