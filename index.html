@@ -24,6 +24,13 @@
 </div>
 <div id="engineInfo" class="limits"><b>🧠 Motor de limpeza</b><span>Voz / Unboxing usa RNNoise neural quando disponível</span><small>Se o módulo neural não puder ser carregado, o Audio Cleaner usa automaticamente o tratamento clássico.</small></div>\n<div class="options"><label><input id="normalize" type="checkbox" checked> Normalizar volume</label><label><input id="highpass" type="checkbox" checked> Cortar graves indesejados</label></div>
 <button id="process" class="primary">✨ PROCESSAR ARQUIVO</button>
+<div id="refine" class="refine hidden">
+<b>🎚️ Quer ajustar mais?</b><p>Ouça o resultado acima. Se ainda houver ruído, escolha um refinamento e processe novamente.</p>
+<div class="refine-buttons">
+<button data-refine="natural"><b>🌿 Voz Natural</b><small>Limpeza suave, preserva timbre</small></button>
+<button data-refine="strong"><b>🎙️ Voz Forte</b><small>Mais foco na fala</small></button>
+<button data-refine="extreme"><b>⚡ Ruído Extremo</b><small>Supressão máxima para ambientes difíceis</small></button>
+</div></div>
 <div id="progress" class="progress hidden"><div id="bar"></div><span id="status">Preparando…</span></div>
 <a id="download" class="download hidden">⬇ BAIXAR MP3</a>\n<a id="downloadVideo" class="download hidden">⬇ BAIXAR VÍDEO COM ÁUDIO LIMPO</a>\n<a id="downloadWav" class="download hidden" style="background:#101f31;color:#dfe8f4;border:1px solid #29405a">⬇ BAIXAR WAV</a>
 <p id="error" class="error hidden"></p>
