@@ -52,3 +52,10 @@ A forma mais simples é clicar no botão **ABRIR AUDIO CLEANER** no início dest
 - otimizações para vídeos maiores.
 
 © Igor Gomes ETI
+
+
+## Sobre / About
+
+Audio Cleaner é uma ferramenta gratuita e open source para remover e reduzir ruído de fundo de áudio e vídeo diretamente no navegador. Possui modos para voz, unboxing, ventilador e ar-condicionado, com exportação MP3, WAV e vídeo tratado. O processamento é local, sem upload do arquivo do usuário para servidor.
+
+**Palavras-chave:** remover ruído de áudio, remover ruído de vídeo, redução de ruído, limpar áudio, noise reduction, áudio para YouTube, voz, unboxing, ventilador, ar-condicionado.
