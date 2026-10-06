@@ -1,0 +1,114 @@
+console.info("Audio Cleaner build 2026.10.06.12");
+document.addEventListener("DOMContentLoaded",()=>{const s=document.querySelector("#jsStatus");if(s){s.textContent="• JS ativo ✓";s.style.color="#19d3c5"}});
+let selected=null,preset="normal",resultUrl=null,wavUrl=null,videoUrl=null,isVideo=false,refineMode=null;
+const $=s=>document.querySelector(s),file=$("#file"),drop=$("#drop"),work=$("#work");
+["dragenter","dragover"].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));file.addEventListener("change",()=>loadFile(file.files[0]));$("#change").onclick=()=>file.click();
+document.querySelectorAll(".preset").forEach(b=>b.onclick=()=>{document.querySelectorAll(".preset").forEach(x=>x.classList.remove("active"));b.classList.add("active");preset=b.dataset.preset;refineMode=null});
+document.querySelectorAll("[data-refine]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-refine]").forEach(x=>x.classList.remove("active"));b.classList.add("active");refineMode=b.dataset.refine;preset="voice";$("#process").textContent=isVideo?"✨ REPROCESSAR ÁUDIO DO VÍDEO":"✨ REPROCESSAR ÁUDIO";$("#process").scrollIntoView({behavior:"smooth",block:"center"})});
+function showError(t){$("#error").textContent=t;$("#error").classList.remove("hidden")}
+function setProgress(n,t){$("#progress").classList.remove("hidden");$("#bar").style.width=n+"%";$("#status").textContent=t}
+function fmtSize(n){return n<1048576?(n/1024).toFixed(0)+" KB":(n/1048576).toFixed(1)+" MB"}
+function loadFile(f){
+ if(!f)return;
+ $("#error").classList.add("hidden");
+ isVideo=f.type.startsWith("video/")||/\.(mp4|webm|mov)$/i.test(f.name);
+ const okAudio=f.type.startsWith("audio/")||/\.(mp3|wav|m4a|aac|ogg)$/i.test(f.name);
+ if(!isVideo&&!okAudio){showError("Selecione um áudio ou vídeo compatível.");return}
+ const soft=isVideo?300*1048576:150*1048576;
+ if(f.size>soft&&!confirm("Este arquivo tem "+fmtSize(f.size)+". Acima da faixa recomendada o navegador pode ficar sem memória. Deseja tentar mesmo assim?"))return;
+ selected=f;
+ $("#filename").textContent=f.name+" • "+fmtSize(f.size);
+ $("#filemeta").textContent=isVideo?"MP4/vídeo aceito • pronto para processar":"Áudio aceito • pronto para processar";
+ drop.classList.add("hidden");
+ work.classList.remove("hidden");
+ ["#download","#downloadWav","#downloadVideo"].forEach(s=>$(s).classList.add("hidden"));
+ $("#resultBox").classList.add("disabled");
+ $("#resultVideo").classList.add("hidden");
+ $("#result").classList.toggle("hidden",isVideo);
+ $("#original").classList.toggle("hidden",isVideo);
+ $("#originalVideo").classList.toggle("hidden",!isVideo);
+ $("#process").textContent=isVideo?"✨ LIMPAR ÁUDIO DO VÍDEO":"✨ PROCESSAR ÁUDIO";
+ $("#process").disabled=false;
+ refineMode=null;
+ $("#refine").classList.add("hidden");
+ document.querySelectorAll("[data-refine]").forEach(x=>x.classList.remove("active"));
+ const u=URL.createObjectURL(f);
+ if(isVideo){
+   const v=$("#originalVideo");
+   v.src=u;
+   v.controls=true;
+   v.preload="metadata";
+   v.onloadedmetadata=()=>{$("#filemeta").textContent="Vídeo aceito • "+fmtSize(f.size)+" • "+Math.floor(v.duration/60)+"m "+Math.round(v.duration%60)+"s • pronto para processar"};
+   v.onerror=()=>{$("#filemeta").textContent="Vídeo aceito • "+fmtSize(f.size)+" • prévia indisponível, processamento liberado"};
+ }else{
+   $("#original").src=u;
+ }
+}
+const tick=()=>new Promise(r=>setTimeout(r,20));
+$("#process").onclick=async()=>{if(!selected)return;const btn=$("#process");btn.disabled=true;["#download","#downloadWav","#downloadVideo"].forEach(s=>$(s).classList.add("hidden"));$("#error").classList.add("hidden");try{setProgress(5,isVideo?"Preparando vídeo…":"Lendo áudio…");let sourceBuf;if(isVideo){try{sourceBuf=await extractAudioFromVideo(selected)}catch(ex){throw new Error("EXTRACT:"+((ex&&ex.message)||"falha desconhecida"))}}else{sourceBuf=await selected.arrayBuffer()}setProgress(18,"Decodificando áudio…");const ctx=new (window.AudioContext||window.webkitAudioContext)();let audio;try{audio=await ctx.decodeAudioData(sourceBuf)}catch(de){await ctx.close();throw new Error("DECODE:"+((de&&de.message)||"codec de áudio não suportado"))}await ctx.close();sourceBuf=null;setProgress(22,"Analisando sinal…");let out;if(preset==="voice"){try{setProgress(25,"Carregando RNNoise neural…");out=await neuralClean(audio,$("#normalize").checked,p=>setProgress(28+p*.52,"RNNoise: removendo ruído…"),refineMode||"natural");$("#engineInfo span").textContent="RNNoise neural ativo neste processamento ✓"}catch(ne){console.warn("RNNoise indisponível, usando fallback",ne);$("#engineInfo span").textContent="RNNoise indisponível • tratamento clássico aplicado";out=await clean(audio,preset,$("#highpass").checked,$("#normalize").checked,p=>setProgress(22+p*.60,"Reduzindo ruído…"))}}else{out=await clean(audio,preset,$("#highpass").checked,$("#normalize").checked,p=>setProgress(22+p*.60,"Reduzindo ruído…"))}setProgress(84,"Gerando WAV…");const wav=encodeWav(out);if(wavUrl)URL.revokeObjectURL(wavUrl);wavUrl=URL.createObjectURL(wav);const aw=$("#downloadWav");aw.href=wavUrl;aw.download=selected.name.replace(/\.[^.]+$/,"")+"-limpo.wav";aw.classList.remove("hidden");let playable=wavUrl;try{setProgress(88,"Codificando MP3…");const mp3=await encodeMp3(out,p=>setProgress(88+p*.05,"Codificando MP3…"));if(resultUrl)URL.revokeObjectURL(resultUrl);resultUrl=URL.createObjectURL(mp3);playable=resultUrl;const a=$("#download");a.href=resultUrl;a.download=selected.name.replace(/\.[^.]+$/,"")+"-limpo.mp3";a.classList.remove("hidden")}catch(e){showError("O áudio foi tratado, mas o MP3 não pôde ser gerado. WAV disponível.")}if(isVideo){setProgress(94,"Montando vídeo com áudio limpo…");try{const video=await muxCleanAudio(selected,wav);if(videoUrl)URL.revokeObjectURL(videoUrl);videoUrl=URL.createObjectURL(video);$("#resultVideo").src=videoUrl;$("#resultVideo").classList.remove("hidden");$("#result").classList.add("hidden");const dv=$("#downloadVideo");dv.href=videoUrl;dv.download=selected.name.replace(/\.[^.]+$/,"")+"-audio-limpo.mp4";dv.classList.remove("hidden")}catch(e){console.error(e);showError("Áudio tratado disponível em MP3/WAV, mas não foi possível remontar este vídeo.")}}else{$("#result").src=playable;$("#result").classList.remove("hidden");$("#resultVideo").classList.add("hidden")}$("#resultBox").classList.remove("disabled");$("#refine").classList.remove("hidden");setProgress(100,"Pronto ✓")}catch(e){console.error(e);const m=(e&&e.message)||"",stage=$("#status").textContent||"desconhecida";if(m.startsWith("EXTRACT:"))showError("Falha no motor de vídeo. Etapa: "+stage+". "+m.slice(8));else if(m.startsWith("DECODE:"))showError("O áudio foi extraído, mas o navegador não conseguiu decodificá-lo. Etapa: "+stage);else showError("Falha durante: "+stage+". Detalhe técnico: "+(m||"erro não identificado"));$("#progress").classList.remove("hidden")}finally{btn.disabled=false}};
+async function clean(audio,mode,useHP,norm,progress){const sr=audio.sampleRate,len=audio.length,ch=audio.numberOfChannels,settings={light:[.018,.72],normal:[.028,.58],strong:[.045,.43],voice:[.034,.5]}[mode],gate=settings[0],floor=settings[1],channels=[];for(let c=0;c<ch;c++){const x=audio.getChannelData(c),y=new Float32Array(len);let hp=0,prev=0,env=0;const alpha=useHP?Math.exp(-2*Math.PI*(mode==="voice"?95:70)/sr):0,win=Math.max(1,Math.floor(sr*.012)),energy=[];for(let i=0;i<len;i+=win){let s=0,n=Math.min(win,len-i);for(let j=0;j<n;j++)s+=x[i+j]*x[i+j];energy.push(Math.sqrt(s/n))}const sorted=[...energy].sort((a,b)=>a-b),noise=sorted[Math.floor(sorted.length*.18)]||.001,thr=Math.max(gate,noise*(mode==="strong"?3.6:mode==="light"?2:2.8));let gain=1;for(let i=0;i<len;i++){let v=x[i];if(useHP){const h=alpha*(hp+v-prev);prev=v;hp=h;v=h}env=.995*env+.005*Math.abs(v);const target=env<thr?floor:1;gain=.92*gain+.08*target;y[i]=mode==="voice"?Math.tanh(v*gain*1.12)/1.12:v*gain}channels.push(y);progress((c+1)/ch*100);await tick()}if(norm){let peak=0;channels.forEach(a=>{for(let i=0;i<a.length;i++)peak=Math.max(peak,Math.abs(a[i]))});if(peak){const g=Math.min(3,.92/peak);channels.forEach(a=>{for(let i=0;i<a.length;i++)a[i]*=g})}}return{channels,sampleRate:sr,length:len}}
+function encodeWav(o){const n=o.channels.length,sr=o.sampleRate,len=o.length,ab=new ArrayBuffer(44+len*n*2),v=new DataView(ab),str=(p,s)=>{for(let i=0;i<s.length;i++)v.setUint8(p+i,s.charCodeAt(i))};str(0,"RIFF");v.setUint32(4,36+len*n*2,true);str(8,"WAVE");str(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,n,true);v.setUint32(24,sr,true);v.setUint32(28,sr*n*2,true);v.setUint16(32,n*2,true);v.setUint16(34,16,true);str(36,"data");v.setUint32(40,len*n*2,true);let p=44;for(let i=0;i<len;i++)for(let c=0;c<n;c++){const s=Math.max(-1,Math.min(1,o.channels[c][i]));v.setInt16(p,s<0?s*32768:s*32767,true);p+=2}return new Blob([ab],{type:"audio/wav"})}
+async function encodeMp3(o,progress){if(typeof lamejs==="undefined")throw Error("MP3 encoder");const ch=Math.min(2,o.channels.length),enc=new lamejs.Mp3Encoder(ch,o.sampleRate,192),block=1152,parts=[],to16=(a,s,e)=>{const z=new Int16Array(e-s);for(let i=s,j=0;i<e;i++,j++){const v=Math.max(-1,Math.min(1,a[i]));z[j]=v<0?v*32768:v*32767}return z};for(let i=0;i<o.length;i+=block){const e=Math.min(i+block,o.length),b=ch===1?enc.encodeBuffer(to16(o.channels[0],i,e)):enc.encodeBuffer(to16(o.channels[0],i,e),to16(o.channels[1],i,e));if(b.length)parts.push(new Uint8Array(b));if(i%(block*100)===0){progress(i/o.length*100);await tick()}}const end=enc.flush();if(end.length)parts.push(new Uint8Array(end));return new Blob(parts,{type:"audio/mpeg"})}
+let ffmpegInstance=null;
+async function getFFmpeg(){
+ if(ffmpegInstance)return ffmpegInstance;
+ setProgress(8,"Carregando FFmpeg 0.12 single-thread…");
+ let FFmpegClass,toBlobURL;
+ try{
+   const main=await import("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js");
+   const util=await import("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js");
+   FFmpegClass=main.FFmpeg;
+   toBlobURL=util.toBlobURL;
+ }catch(e){throw Error("Bibliotecas FFmpeg 0.12 não carregaram: "+e.message)}
+ const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
+ let coreURL,wasmURL;
+ try{
+   coreURL=await toBlobURL(base+"/ffmpeg-core.js","text/javascript");
+   wasmURL=await toBlobURL(base+"/ffmpeg-core.wasm","application/wasm");
+ }catch(e){throw Error("Core FFmpeg 0.12 não carregou: "+e.message)}
+ let workerURL;
+ try{
+   workerURL=await toBlobURL("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/worker.js","text/javascript");
+ }catch(e){throw Error("Worker FFmpeg não carregou: "+e.message)}
+ const ff=new FFmpegClass();
+ ff.on("log",({message})=>console.log("[ffmpeg]",message));
+ setProgress(9,"Inicializando FFmpeg 0.12 local…");
+ try{await ff.load({coreURL,wasmURL,classWorkerURL:workerURL})}catch(e){throw Error("FFmpeg 0.12 não inicializou: "+((e&&e.message)||e))}
+ ffmpegInstance=ff;
+ return ffmpegInstance
+}
+async function extractAudioFromVideo(f){
+ setProgress(6,"Preparando extração de áudio…");
+ const ff=await getFFmpeg(),ext=(f.name.split(".").pop()||"mp4").toLowerCase(),input="entrada."+ext;
+ setProgress(10,"Copiando vídeo para a memória de trabalho…");
+ let raw=new Uint8Array(await f.arrayBuffer());
+ await ff.writeFile(input,raw); raw=null;
+ setProgress(13,"Extraindo somente a faixa de áudio…");
+ try{
+   await ff.exec(["-i",input,"-vn","-ac","2","-acodec","pcm_s16le","-ar","48000","audio.wav"]);
+   const d=await ff.readFile("audio.wav");
+   return d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength)
+ }finally{
+   try{await ff.deleteFile(input)}catch(e){}
+   try{await ff.deleteFile("audio.wav")}catch(e){}
+ }
+}
+async function muxCleanAudio(video,wavBlob){
+ setProgress(94,"Liberando memória antes de remontar o vídeo…");await tick();
+ const ff=await getFFmpeg(),ext=(video.name.split(".").pop()||"mp4").toLowerCase(),input="video."+ext;
+ await ff.writeFile(input,new Uint8Array(await video.arrayBuffer()));
+ await ff.writeFile("clean.wav",new Uint8Array(await wavBlob.arrayBuffer()));
+ try{
+   await ff.exec(["-i",input,"-i","clean.wav","-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k","-shortest","saida.mp4"]);
+   const d=await ff.readFile("saida.mp4");
+   return new Blob([d.buffer.slice(d.byteOffset,d.byteOffset+d.byteLength)],{type:"video/mp4"})
+ }finally{
+   for(const x of [input,"clean.wav","saida.mp4"]){try{await ff.deleteFile(x)}catch(e){}}
+ }
+}
+let rnnoiseModule=null;
+async function loadRNNoise(){if(rnnoiseModule)return rnnoiseModule;const mod=await import("https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2025.1.5/dist/rnnoise.js");rnnoiseModule=await mod.Rnnoise.load();return rnnoiseModule}
+async function resampleTo48k(audio){if(audio.sampleRate===48000)return audio;const offline=new OfflineAudioContext(audio.numberOfChannels,Math.ceil(audio.duration*48000),48000),src=offline.createBufferSource();src.buffer=audio;src.connect(offline.destination);src.start();return await offline.startRendering()}
+async function neuralClean(audio,norm,progress,mode="natural"){const input=await resampleTo48k(audio),rn=await loadRNNoise(),frameSize=480,len=input.length,channels=[];for(let c=0;c<input.numberOfChannels;c++){const state=rn.createDenoiseState(),src=input.getChannelData(c),dst=new Float32Array(len);try{for(let i=0;i<len;i+=frameSize){const frame=new Float32Array(frameSize),n=Math.min(frameSize,len-i);frame.set(src.subarray(i,i+n));state.processFrame(frame);const mix=mode==="strong"?.88:mode==="extreme"?1:.72;for(let q=0;q<n;q++){let den=frame[q],dry=src[i+q],v=dry*(1-mix)+den*mix;if(mode==="extreme"&&Math.abs(v)<.012)v*=.28;frame[q]=v}dst.set(frame.subarray(0,n),i);if(i%(frameSize*200)===0){progress(((c+i/len)/input.numberOfChannels)*100);await tick()}}}finally{state.destroy()}channels.push(dst)}if(norm){let peak=0;channels.forEach(a=>{for(let i=0;i<a.length;i++)peak=Math.max(peak,Math.abs(a[i]))});if(peak){const g=Math.min(2,.92/peak);channels.forEach(a=>{for(let i=0;i<a.length;i++)a[i]*=g})}}progress(100);return{channels,sampleRate:48000,length:len}}
