@@ -18,8 +18,9 @@ O processamento acontece localmente no navegador. Os arquivos selecionados não 
 
 - Áudio: MP3, WAV, M4A, AAC e OGG, conforme suporte do navegador.
 - Vídeo: MP4, WebM e MOV. A aplicação extrai o áudio, trata e tenta reinseri-lo no vídeo.
-- Presets: Leve, Normal, Forte e Voz / Unboxing.\n- **Voz / Unboxing com RNNoise neural via WebAssembly**, com fallback automático para o tratamento clássico quando o módulo neural não estiver disponível.
-- Fluxo de refinamento após ouvir o resultado: **Voz Natural**, **Voz Forte** e **Ruído Extremo**, sem precisar selecionar o arquivo novamente.
+- Presets: Leve, Normal, Forte e Voz / Unboxing.
+- **Voz / Unboxing com RNNoise neural via WebAssembly**, com fallback automático para o tratamento clássico quando o módulo neural não estiver disponível.
+- Fluxo de refinamento após ouvir o resultado: **Voz Natural**, **Voz Forte**, **Ruído Extremo** e **Ventilador / Ar**, sem precisar selecionar o arquivo novamente.
 - Gate adaptativo para redução de ruído.
 - Filtro de graves e normalização.
 - Comparação entre original e tratado.
@@ -59,3 +60,17 @@ A forma mais simples é clicar no botão **ABRIR AUDIO CLEANER** no início dest
 Audio Cleaner é uma ferramenta gratuita e open source para remover e reduzir ruído de fundo de áudio e vídeo diretamente no navegador. Possui modos para voz, unboxing, ventilador e ar-condicionado, com exportação MP3, WAV e vídeo tratado. O processamento é local, sem upload do arquivo do usuário para servidor.
 
 **Palavras-chave:** remover ruído de áudio, remover ruído de vídeo, redução de ruído, limpar áudio, noise reduction, áudio para YouTube, voz, unboxing, ventilador, ar-condicionado.
+
+## 🤝 Comunidade e contribuições
+
+Desenvolvedores são bem-vindos! Ajude a aprimorar o algoritmo, desempenho, acessibilidade, compatibilidade e documentação. Abra uma **Issue** para sugestões ou bugs e envie um **Pull Request** com melhorias testadas. Consulte [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Usou o Audio Cleaner?** Compartilhe feedback com tipo de ruído, navegador e resultado, sem publicar arquivos privados. Cada teste real ajuda a evoluir o projeto.
+
+## 💚 Apoie o projeto
+
+O Audio Cleaner continuará gratuito. Você pode ajudar compartilhando, dando uma estrela ⭐, contribuindo com código ou apoiando financeiramente quando os canais oficiais estiverem disponíveis. Consulte [SUPPORT.md](SUPPORT.md).
+
+## 📜 Licença
+
+Código próprio disponibilizado sob a [licença MIT](LICENSE). Dependências de terceiros continuam sujeitas às suas respectivas licenças.
