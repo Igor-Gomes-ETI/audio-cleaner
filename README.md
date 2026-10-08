@@ -69,7 +69,7 @@ Desenvolvedores são bem-vindos! Ajude a aprimorar o algoritmo, desempenho, aces
 
 ## 💚 Apoie o projeto
 
-O Audio Cleaner continuará gratuito. Você pode ajudar compartilhando, dando uma estrela ⭐, contribuindo com código ou apoiando financeiramente quando os canais oficiais estiverem disponíveis. Consulte [SUPPORT.md](SUPPORT.md).
+O Audio Cleaner continuará gratuito. Você pode ajudar compartilhando, dando uma estrela ⭐, contribuindo com código ou [apoiando financeiramente pelo GitHub Sponsors](https://github.com/sponsors/wizardigor). Consulte [SUPPORT.md](SUPPORT.md).
 
 ## 📜 Licença
 
